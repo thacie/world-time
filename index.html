@@ -187,6 +187,9 @@
       font-weight: 600;
       line-height: 1;
       color: #1e1e2e;
+      min-width: 2ch;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
     }
 
     .time-sep {
@@ -285,47 +288,67 @@
     const cities = [
       {
         name: 'Shanghai', tz: 'Asia/Shanghai', cls: 'shanghai', landmark: 'The Bund',
-        img: 'https://images.unsplash.com/photo-1545893835-abaa50cbe628?w=800&q=80',
+        img: 'https://images.unsplash.com/photo-1523281855495-b46cf55b1e7e?w=800&q=80',
+        imgNight: 'https://images.unsplash.com/photo-1614221330834-9399e5631af3?w=800&q=80',
+        localImg: 'images/shanghai_day.jpg', localImgNight: 'images/shanghai_night.jpg',
         fallback: 'linear-gradient(135deg,#ef4444,#f97316)'
       },
       {
         name: 'Taipei', tz: 'Asia/Taipei', cls: 'taipei', landmark: 'Taipei 101',
-        img: 'https://images.unsplash.com/photo-1741004419862-5f3600cc7a97?w=800&q=80',
+        img: 'https://images.unsplash.com/photo-1609147110688-83b5fd1288e8?w=800&q=80',
+        imgNight: 'https://images.unsplash.com/photo-1598935898639-81586f7d2129?w=800&q=80',
+        localImg: 'images/taipei_day.jpg', localImgNight: 'images/taipei_night.jpg',
         fallback: 'linear-gradient(135deg,#3b82f6,#06b6d4)'
       },
       {
         name: 'Jakarta', tz: 'Asia/Jakarta', cls: 'jakarta', landmark: 'Monas Tower',
-        img: 'https://images.unsplash.com/photo-1555899434-94d1368aa7af?w=800&q=80',
+        img: 'https://images.unsplash.com/photo-1555605976-8bf855afd253?w=800&q=80',
+        imgNight: 'https://images.unsplash.com/photo-1618050032268-6aa510a06191?w=800&q=80',
+        localImg: 'images/jakarta_day.jpg', localImgNight: 'images/jakarta_night.jpg',
         fallback: 'linear-gradient(135deg,#f59e0b,#eab308)'
       },
       {
         name: 'New York', tz: 'America/New_York', cls: 'newyork', landmark: 'Manhattan',
-        img: 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&q=80',
+        img: 'https://images.unsplash.com/photo-1618861138969-0d7a9d315b1f?w=800&q=80',
+        imgNight: 'https://images.unsplash.com/photo-1559075403-a91eebbc7d03?w=800&q=80',
+        localImg: 'images/newyork_day.jpg', localImgNight: 'images/newyork_night.jpg',
         fallback: 'linear-gradient(135deg,#22c55e,#10b981)'
       },
       {
         name: 'Los Angeles', tz: 'America/Los_Angeles', cls: 'losangeles', landmark: 'Hollywood Sign',
-        img: 'https://images.unsplash.com/photo-1530813177528-1a90c980c488?w=800&q=80',
+        img: 'https://images.unsplash.com/photo-1506184106046-1e6e90c0222d?w=800&q=80',
+        imgNight: 'https://images.unsplash.com/photo-1611728337177-89dfbbdc7a3a?w=800&q=80',
+        localImg: 'images/losangeles_day.jpg', localImgNight: 'images/losangeles_night.jpg',
         fallback: 'linear-gradient(135deg,#f97316,#ec4899)'
       },
       {
         name: 'Paris', tz: 'Europe/Paris', cls: 'paris', landmark: 'Eiffel Tower',
-        img: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80',
+        img: 'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=800&q=80',
+        imgNight: 'https://images.unsplash.com/photo-1565881606991-789a8dff9dbb?w=800&q=80',
+        localImg: 'images/paris_day.jpg', localImgNight: 'images/paris_night.jpg',
         fallback: 'linear-gradient(135deg,#8b5cf6,#a78bfa)'
       },
       {
         name: 'London', tz: 'Europe/London', cls: 'london', landmark: 'Big Ben',
-        img: 'https://images.unsplash.com/photo-1529655683826-aba9b3e77383?w=800&q=80',
+        img: 'https://images.unsplash.com/photo-1500380804539-4e1e8c1e7118?w=800&q=80',
+        imgNight: 'https://images.unsplash.com/photo-1519773483179-fa089c182a4a?w=800&q=80',
+        localImg: 'images/london_day.jpg', localImgNight: 'images/london_night.jpg',
         fallback: 'linear-gradient(135deg,#06b6d4,#22d3ee)'
       },
       {
         name: 'Sydney', tz: 'Australia/Sydney', cls: 'sydney', landmark: 'Opera House',
         img: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&q=80',
+        imgNight: 'https://images.unsplash.com/photo-1527251672045-a80241b3f574?w=800&q=80',
+        localImg: 'images/sydney_day.jpg', localImgNight: 'images/sydney_night.jpg',
         fallback: 'linear-gradient(135deg,#10b981,#34d399)'
       },
     ];
 
     function pad(n) { return String(n).padStart(2, '0'); }
+
+    function safeFormat(date, opts) {
+      return pad(parseInt(new Intl.DateTimeFormat('en-GB', opts).format(date)));
+    }
 
     function formatOffset(offsetMin) {
       const sign = offsetMin >= 0 ? '+' : '-';
@@ -345,13 +368,24 @@
       document.getElementById('headerTime').textContent = fmt.format(now);
     }
 
-    // Preload images and set fallback on error
+    // Preload CDN images and set fallback on error
     const imgLoaded = {};
     cities.forEach(city => {
-      const img = new Image();
-      img.onload  = () => { imgLoaded[city.cls] = true; };
-      img.onerror = () => { imgLoaded[city.cls] = false; };
-      img.src = city.img;
+      const dayImg = new Image();
+      dayImg.onload  = () => { imgLoaded[city.cls + '-day'] = true; };
+      dayImg.onerror = () => { imgLoaded[city.cls + '-day'] = false; };
+      dayImg.src = city.img;
+
+      const nightImg = new Image();
+      nightImg.onload  = () => { imgLoaded[city.cls + '-night'] = true; };
+      nightImg.onerror = () => { imgLoaded[city.cls + '-night'] = false; };
+      nightImg.src = city.imgNight;
+    });
+
+    // Preload local backup images into browser cache
+    cities.forEach(city => {
+      new Image().src = city.localImg;
+      new Image().src = city.localImgNight;
     });
 
     function renderCards() {
@@ -362,10 +396,10 @@
       const now = new Date();
       const utcStr = now.toLocaleString('en-US', { timeZone: 'UTC' });
 
-      cities.forEach(city => {
-        const hh = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', hour12: false, timeZone: city.tz }).format(now);
-        const mm = new Intl.DateTimeFormat('en-GB', { minute: '2-digit', timeZone: city.tz }).format(now);
-        const ss = new Intl.DateTimeFormat('en-GB', { second: '2-digit', timeZone: city.tz }).format(now);
+      cities.forEach((city, idx) => {
+        const hh = safeFormat(now, { hour: '2-digit', hour12: false, timeZone: city.tz });
+        const mm = safeFormat(now, { minute: '2-digit', timeZone: city.tz });
+        const ss = safeFormat(now, { second: '2-digit', timeZone: city.tz });
 
         const dateFmt = new Intl.DateTimeFormat('en-US', {
           weekday: 'short', month: 'short', day: 'numeric', timeZone: city.tz
@@ -378,13 +412,16 @@
         const diffMs = new Date(localStr) - new Date(utcStr);
         const offsetMin = Math.round(diffMs / 60000);
 
-        const usePhoto = imgLoaded[city.cls] !== false;
-        const bgStyle = usePhoto
-          ? `background-image:url('${city.img}')`
-          : `background:${city.fallback}`;
+        const cdnLoaded = imgLoaded[city.cls + (isDay ? '-day' : '-night')];
+        const cdnUrl = isDay ? city.img : city.imgNight;
+        const localUrl = isDay ? city.localImg : city.localImgNight;
+        const bgImage = cdnLoaded !== false ? cdnUrl : localUrl;
+        const bgStyle = `background:${city.fallback};background-image:url('${bgImage}');background-size:cover;background-position:center;`;
 
         const card = document.createElement('div');
         card.className = `card ${city.cls}${isDay ? '' : ' is-night'}`;
+        card.dataset.idx = idx;
+        card.dataset.lastHour = hour;
         card.innerHTML = `
           <div class="card-photo" style="${bgStyle}"></div>
           <div class="card-overlay"></div>
@@ -414,8 +451,66 @@
       });
     }
 
+    function updateTimes() {
+      updateHeaderTime();
+      const now = new Date();
+      const utcStr = now.toLocaleString('en-US', { timeZone: 'UTC' });
+      const cards = document.querySelectorAll('.card');
+
+      cards.forEach(card => {
+        const idx = parseInt(card.dataset.idx);
+        const city = cities[idx];
+
+        const hh = safeFormat(now, { hour: '2-digit', hour12: false, timeZone: city.tz });
+        const mm = safeFormat(now, { minute: '2-digit', timeZone: city.tz });
+        const ss = safeFormat(now, { second: '2-digit', timeZone: city.tz });
+
+        // Update time text only (no DOM rebuild)
+        card.querySelector('.time-hh').textContent = hh;
+        card.querySelector('.time-mm').textContent = mm;
+        card.querySelector('.time-ss').textContent = ss;
+
+        // Check if hour changed → update day/night mode
+        const hour = parseInt(hh);
+        const lastHour = parseInt(card.dataset.lastHour);
+        if (hour !== lastHour) {
+          card.dataset.lastHour = hour;
+          const isDay = hour >= 6 && hour < 18;
+
+          // Update card class
+          card.classList.toggle('is-night', !isDay);
+
+          // Update badge
+          const badge = card.querySelector('.badge');
+          badge.className = `badge ${isDay ? 'day' : 'night'}`;
+          badge.textContent = isDay ? '☀ Day' : '☾ Night';
+
+          // Update background image
+          const cdnLoaded = imgLoaded[city.cls + (isDay ? '-day' : '-night')];
+          const cdnUrl = isDay ? city.img : city.imgNight;
+          const localUrl = isDay ? city.localImg : city.localImgNight;
+          const bgImage = cdnLoaded !== false ? cdnUrl : localUrl;
+          const photo = card.querySelector('.card-photo');
+          photo.style.background = city.fallback;
+          photo.style.backgroundImage = `url('${bgImage}')`;
+          photo.style.backgroundSize = 'cover';
+          photo.style.backgroundPosition = 'center';
+
+          // Update date and offset
+          const dateFmt = new Intl.DateTimeFormat('en-US', {
+            weekday: 'short', month: 'short', day: 'numeric', timeZone: city.tz
+          });
+          const localStr = now.toLocaleString('en-US', { timeZone: city.tz });
+          const diffMs = new Date(localStr) - new Date(utcStr);
+          const offsetMin = Math.round(diffMs / 60000);
+          card.querySelector('.date-display').textContent = dateFmt.format(now);
+          card.querySelector('.utc-offset').textContent = formatOffset(offsetMin);
+        }
+      });
+    }
+
     renderCards();
-    setInterval(renderCards, 1000);
+    setInterval(updateTimes, 1000);
   </script>
 </body>
 </html>
