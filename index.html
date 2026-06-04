@@ -39,6 +39,14 @@
     }
     h1 span { color: #6366f1; }
 
+    .credit {
+      font-size: 0.58rem;
+      color: #aaa;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      margin-left: 10px;
+    }
+
     .header-time {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.7rem;
@@ -267,7 +275,7 @@
 <body>
 
   <header>
-    <h1>World <span>Time</span></h1>
+    <h1>World <span>Time</span><span class="credit">provided by Hugo HUANG</span></h1>
     <div class="header-time" id="headerTime"></div>
   </header>
 
@@ -296,8 +304,8 @@
         fallback: 'linear-gradient(135deg,#22c55e,#10b981)'
       },
       {
-        name: 'Los Angeles', tz: 'America/Los_Angeles', cls: 'losangeles', landmark: 'Hollywood',
-        img: 'https://images.unsplash.com/photo-1489824904134-891ab64532f1?w=800&q=80',
+        name: 'Los Angeles', tz: 'America/Los_Angeles', cls: 'losangeles', landmark: 'Hollywood Sign',
+        img: 'https://images.unsplash.com/photo-1530813177528-1a90c980c488?w=800&q=80',
         fallback: 'linear-gradient(135deg,#f97316,#ec4899)'
       },
       {
