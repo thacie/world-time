@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Time</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      background: #f5f6fa;
+      background-image:
+        radial-gradient(ellipse at 20% 50%, rgba(99,102,241,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(236,72,153,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 60% 80%, rgba(34,211,238,0.06) 0%, transparent 50%);
+      color: #1e1e2e;
+      display: flex;
+      flex-direction: column;
+      padding: 26px 32px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-shrink: 0;
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: #2e2e48;
+    }
+    h1 span { color: #6366f1; }
+
+    .header-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: #999;
+      letter-spacing: 0.5px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 14px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .card {
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      background: #e2e4ec;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07), 0 0.5px 2px rgba(0,0,0,0.04);
+      transition: transform 0.28s ease, box-shadow 0.28s ease;
+      cursor: default;
+    }
+
+    .card:hover {
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    /* Photo background */
+    .card-photo {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.5s ease;
+    }
+    .card:hover .card-photo { transform: scale(1.06); }
+
+    /* Gradient overlay — light frosted feel */
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(255,255,255,0.0) 0%,
+        rgba(255,255,255,0.0) 25%,
+        rgba(255,255,255,0.35) 55%,
+        rgba(255,255,255,0.82) 75%,
+        rgba(255,255,255,0.95) 100%
+      );
+      z-index: 1;
+    }
+
+    /* Night-time overlay is darker */
+    .card.is-night .card-overlay {
+      background: linear-gradient(
+        180deg,
+        rgba(15,15,35,0.0) 0%,
+        rgba(15,15,35,0.1) 25%,
+        rgba(15,15,35,0.45) 55%,
+        rgba(15,15,35,0.8) 75%,
+        rgba(15,15,35,0.92) 100%
+      );
+    }
+    .card.is-night .city-name { color: #fff; }
+    .card.is-night .tz-label { color: rgba(255,255,255,0.5); }
+    .card.is-night .time-hh,
+    .card.is-night .time-mm { color: #fff; }
+    .card.is-night .time-sep { color: rgba(255,255,255,0.35); }
+    .card.is-night .time-ss { color: rgba(255,255,255,0.4); }
+    .card.is-night .date-display { color: rgba(255,255,255,0.5); }
+    .card.is-night .utc-offset { color: rgba(255,255,255,0.35); }
+    .card.is-night .landmark-label { color: rgba(255,255,255,0.55); }
+
+    .card-content {
+      position: relative;
+      z-index: 2;
+      padding: 18px 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .city-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1e1e2e;
+      letter-spacing: 0.3px;
+    }
+
+    .tz-label {
+      font-size: 0.6rem;
+      color: #999;
+      font-weight: 400;
+      letter-spacing: 0.3px;
+      margin-top: 1px;
+    }
+
+    .badge {
+      font-size: 0.55rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .badge.day {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: #78350f;
+    }
+    .badge.night {
+      background: linear-gradient(135deg, #6366f1, #818cf8);
+      color: #e0e7ff;
+    }
+
+    .time-row {
+      display: flex;
+      align-items: baseline;
+      gap: 1px;
+    }
+
+    .time-hh, .time-mm {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      font-weight: 600;
+      line-height: 1;
+      color: #1e1e2e;
+    }
+
+    .time-sep {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      font-weight: 300;
+      line-height: 1;
+      color: #bbb;
+      animation: blink 1s step-end infinite;
+    }
+
+    .time-ss {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 400;
+      color: #aaa;
+      margin-left: 4px;
+      align-self: flex-end;
+      padding-bottom: 3px;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .card-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1px;
+    }
+
+    .date-display {
+      font-size: 0.66rem;
+      color: #888;
+      font-weight: 400;
+    }
+
+    .utc-offset {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      color: #aaa;
+      letter-spacing: 0.3px;
+    }
+
+    .landmark-label {
+      position: absolute;
+      top: 12px;
+      left: 16px;
+      z-index: 3;
+      font-size: 0.55rem;
+      color: rgba(30,30,46,0.45);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 700;
+      text-shadow: 0 1px 4px rgba(255,255,255,0.6);
+    }
+    .card.is-night .landmark-label {
+      text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    }
+
+    /* Colored accent bar at top */
+    .card-accent {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      z-index: 3;
+      border-radius: 18px 18px 0 0;
+    }
+    .shanghai .card-accent   { background: linear-gradient(90deg, #ef4444, #f97316); }
+    .taipei .card-accent     { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
+    .jakarta .card-accent    { background: linear-gradient(90deg, #f59e0b, #eab308); }
+    .newyork .card-accent    { background: linear-gradient(90deg, #22c55e, #10b981); }
+    .losangeles .card-accent { background: linear-gradient(90deg, #f97316, #ec4899); }
+    .paris .card-accent      { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+    .london .card-accent     { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+    .sydney .card-accent     { background: linear-gradient(90deg, #10b981, #34d399); }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, 1fr); }
+      body { padding: 14px; overflow-y: auto; height: auto; min-height: 100vh; }
+    }
+    @media (max-width: 500px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>World <span>Time</span></h1>
+    <div class="header-time" id="headerTime"></div>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <script>
+    const cities = [
+      {
+        name: 'Shanghai', tz: 'Asia/Shanghai', cls: 'shanghai', landmark: 'The Bund',
+        img: 'https://images.unsplash.com/photo-1545893835-abaa50cbe628?w=800&q=80',
+        fallback: 'linear-gradient(135deg,#ef4444,#f97316)'
+      },
+      {
+        name: 'Taipei', tz: 'Asia/Taipei', cls: 'taipei', landmark: 'Taipei 101',
+        img: 'https://images.unsplash.com/photo-1741004419862-5f3600cc7a97?w=800&q=80',
+        fallback: 'linear-gradient(135deg,#3b82f6,#06b6d4)'
+      },
+      {
+        name: 'Jakarta', tz: 'Asia/Jakarta', cls: 'jakarta', landmark: 'Monas Tower',
+        img: 'https://images.unsplash.com/photo-1555899434-94d1368aa7af?w=800&q=80',
+        fallback: 'linear-gradient(135deg,#f59e0b,#eab308)'
+      },
+      {
+        name: 'New York', tz: 'America/New_York', cls: 'newyork', landmark: 'Manhattan',
+        img: 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&q=80',
+        fallback: 'linear-gradient(135deg,#22c55e,#10b981)'
+      },
+      {
+        name: 'Los Angeles', tz: 'America/Los_Angeles', cls: 'losangeles', landmark: 'Hollywood',
+        img: 'https://images.unsplash.com/photo-1489824904134-891ab64532f1?w=800&q=80',
+        fallback: 'linear-gradient(135deg,#f97316,#ec4899)'
+      },
+      {
+        name: 'Paris', tz: 'Europe/Paris', cls: 'paris', landmark: 'Eiffel Tower',
+        img: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80',
+        fallback: 'linear-gradient(135deg,#8b5cf6,#a78bfa)'
+      },
+      {
+        name: 'London', tz: 'Europe/London', cls: 'london', landmark: 'Big Ben',
+        img: 'https://images.unsplash.com/photo-1529655683826-aba9b3e77383?w=800&q=80',
+        fallback: 'linear-gradient(135deg,#06b6d4,#22d3ee)'
+      },
+      {
+        name: 'Sydney', tz: 'Australia/Sydney', cls: 'sydney', landmark: 'Opera House',
+        img: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&q=80',
+        fallback: 'linear-gradient(135deg,#10b981,#34d399)'
+      },
+    ];
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function formatOffset(offsetMin) {
+      const sign = offsetMin >= 0 ? '+' : '-';
+      const abs  = Math.abs(offsetMin);
+      const h = Math.floor(abs / 60);
+      const m = abs % 60;
+      return `UTC${sign}${pad(h)}:${pad(m)}`;
+    }
+
+    function updateHeaderTime() {
+      const now = new Date();
+      const fmt = new Intl.DateTimeFormat('en-GB', {
+        weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      });
+      document.getElementById('headerTime').textContent = fmt.format(now);
+    }
+
+    // Preload images and set fallback on error
+    const imgLoaded = {};
+    cities.forEach(city => {
+      const img = new Image();
+      img.onload  = () => { imgLoaded[city.cls] = true; };
+      img.onerror = () => { imgLoaded[city.cls] = false; };
+      img.src = city.img;
+    });
+
+    function renderCards() {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      updateHeaderTime();
+
+      const now = new Date();
+      const utcStr = now.toLocaleString('en-US', { timeZone: 'UTC' });
+
+      cities.forEach(city => {
+        const hh = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', hour12: false, timeZone: city.tz }).format(now);
+        const mm = new Intl.DateTimeFormat('en-GB', { minute: '2-digit', timeZone: city.tz }).format(now);
+        const ss = new Intl.DateTimeFormat('en-GB', { second: '2-digit', timeZone: city.tz }).format(now);
+
+        const dateFmt = new Intl.DateTimeFormat('en-US', {
+          weekday: 'short', month: 'short', day: 'numeric', timeZone: city.tz
+        });
+
+        const hour = parseInt(hh);
+        const isDay = hour >= 6 && hour < 18;
+
+        const localStr = now.toLocaleString('en-US', { timeZone: city.tz });
+        const diffMs = new Date(localStr) - new Date(utcStr);
+        const offsetMin = Math.round(diffMs / 60000);
+
+        const usePhoto = imgLoaded[city.cls] !== false;
+        const bgStyle = usePhoto
+          ? `background-image:url('${city.img}')`
+          : `background:${city.fallback}`;
+
+        const card = document.createElement('div');
+        card.className = `card ${city.cls}${isDay ? '' : ' is-night'}`;
+        card.innerHTML = `
+          <div class="card-photo" style="${bgStyle}"></div>
+          <div class="card-overlay"></div>
+          <div class="card-accent"></div>
+          <div class="landmark-label">${city.landmark}</div>
+          <div class="card-content">
+            <div class="card-top">
+              <div>
+                <div class="city-name">${city.name}</div>
+                <div class="tz-label">${city.tz.replace(/_/g, ' ')}</div>
+              </div>
+              <div class="badge ${isDay ? 'day' : 'night'}">${isDay ? '☀ Day' : '☾ Night'}</div>
+            </div>
+            <div class="time-row">
+              <span class="time-hh">${hh}</span>
+              <span class="time-sep">:</span>
+              <span class="time-mm">${mm}</span>
+              <span class="time-ss">${ss}</span>
+            </div>
+            <div class="card-bottom">
+              <span class="date-display">${dateFmt.format(now)}</span>
+              <span class="utc-offset">${formatOffset(offsetMin)}</span>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    renderCards();
+    setInterval(renderCards, 1000);
+  </script>
+</body>
+</html>
