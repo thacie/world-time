@@ -91,49 +91,55 @@
     }
     .card:hover .card-photo { transform: scale(1.06); }
 
-    /* Gradient overlay — light frosted feel */
+    /* Gradient overlay — subtle, let photo breathe */
     .card-overlay {
       position: absolute;
       inset: 0;
       background: linear-gradient(
         180deg,
         rgba(255,255,255,0.0) 0%,
-        rgba(255,255,255,0.0) 25%,
-        rgba(255,255,255,0.35) 55%,
-        rgba(255,255,255,0.82) 75%,
-        rgba(255,255,255,0.95) 100%
+        rgba(255,255,255,0.0) 55%,
+        rgba(255,255,255,0.02) 75%,
+        rgba(255,255,255,0.05) 100%
       );
       z-index: 1;
     }
 
-    /* Night-time overlay is darker */
+    /* Night-time overlay — subtle dark vignette */
     .card.is-night .card-overlay {
       background: linear-gradient(
         180deg,
         rgba(15,15,35,0.0) 0%,
-        rgba(15,15,35,0.1) 25%,
-        rgba(15,15,35,0.45) 55%,
-        rgba(15,15,35,0.8) 75%,
-        rgba(15,15,35,0.92) 100%
+        rgba(15,15,35,0.0) 55%,
+        rgba(15,15,35,0.04) 75%,
+        rgba(15,15,35,0.1) 100%
       );
     }
     .card.is-night .city-name { color: #fff; }
-    .card.is-night .tz-label { color: rgba(255,255,255,0.5); }
+    .card.is-night .tz-label { color: rgba(255,255,255,0.6); }
     .card.is-night .time-hh,
     .card.is-night .time-mm { color: #fff; }
-    .card.is-night .time-sep { color: rgba(255,255,255,0.35); }
-    .card.is-night .time-ss { color: rgba(255,255,255,0.4); }
-    .card.is-night .date-display { color: rgba(255,255,255,0.5); }
-    .card.is-night .utc-offset { color: rgba(255,255,255,0.35); }
-    .card.is-night .landmark-label { color: rgba(255,255,255,0.55); }
+    .card.is-night .time-sep { color: rgba(255,255,255,0.4); }
+    .card.is-night .time-ss { color: rgba(255,255,255,0.5); }
+    .card.is-night .date-display { color: rgba(255,255,255,0.55); }
+    .card.is-night .utc-offset { color: rgba(255,255,255,0.4); }
+    .card.is-night .landmark-label { color: rgba(255,255,255,0.6); }
 
     .card-content {
       position: relative;
       z-index: 2;
-      padding: 18px 20px 16px;
+      padding: 16px 20px 14px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(16px) saturate(1.8);
+      -webkit-backdrop-filter: blur(16px) saturate(1.8);
+      border-top: 1px solid rgba(255,255,255,0.15);
+    }
+    .card.is-night .card-content {
+      background: rgba(0,0,0,0.1);
+      border-top: 1px solid rgba(255,255,255,0.06);
     }
 
     .card-top {
@@ -143,15 +149,16 @@
     }
 
     .city-name {
-      font-size: 0.95rem;
+      font-size: 1.15rem;
       font-weight: 700;
-      color: #1e1e2e;
+      color: #fff;
       letter-spacing: 0.3px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }
 
     .tz-label {
       font-size: 0.6rem;
-      color: #999;
+      color: rgba(255,255,255,0.7);
       font-weight: 400;
       letter-spacing: 0.3px;
       margin-top: 1px;
@@ -183,32 +190,33 @@
 
     .time-hh, .time-mm {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 2rem;
+      font-size: 2.6rem;
       font-weight: 600;
       line-height: 1;
-      color: #1e1e2e;
+      color: #fff;
       min-width: 2ch;
       text-align: center;
       font-variant-numeric: tabular-nums;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.25);
     }
 
     .time-sep {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 2rem;
+      font-size: 2.6rem;
       font-weight: 300;
       line-height: 1;
-      color: #bbb;
+      color: rgba(255,255,255,0.45);
       animation: blink 1s step-end infinite;
     }
 
     .time-ss {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.78rem;
+      font-size: 0.9rem;
       font-weight: 400;
-      color: #aaa;
+      color: rgba(255,255,255,0.55);
       margin-left: 4px;
       align-self: flex-end;
-      padding-bottom: 3px;
+      padding-bottom: 5px;
     }
 
     @keyframes blink { 50% { opacity: 0; } }
@@ -222,14 +230,14 @@
 
     .date-display {
       font-size: 0.66rem;
-      color: #888;
+      color: rgba(255,255,255,0.65);
       font-weight: 400;
     }
 
     .utc-offset {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.58rem;
-      color: #aaa;
+      color: rgba(255,255,255,0.45);
       letter-spacing: 0.3px;
     }
 
@@ -239,14 +247,15 @@
       left: 16px;
       z-index: 3;
       font-size: 0.55rem;
-      color: rgba(30,30,46,0.45);
+      color: rgba(255,255,255,0.7);
       letter-spacing: 1px;
       text-transform: uppercase;
       font-weight: 700;
-      text-shadow: 0 1px 4px rgba(255,255,255,0.6);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.4);
     }
     .card.is-night .landmark-label {
       text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+      color: rgba(255,255,255,0.6);
     }
 
     /* Colored accent bar at top */
