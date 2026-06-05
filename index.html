@@ -284,8 +284,9 @@
     }
     .weather-info.loaded { opacity: 1; }
     .weather-icon {
-      font-size: 0.9rem;
-      line-height: 1;
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
       filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));
     }
     .weather-temp {
@@ -804,42 +805,44 @@
     setInterval(updateTimes, 1000);
 
     // Weather: Open-Meteo API (free, no key needed)
-    const weatherMap = {
-      0:  { icon: '☀️', desc: 'Clear' },
-      1:  { icon: '🌤', desc: 'Mainly clear' },
-      2:  { icon: '⛅', desc: 'Partly cloudy' },
-      3:  { icon: '☁️', desc: 'Overcast' },
-      45: { icon: '🌫', desc: 'Foggy' },
-      48: { icon: '🌫', desc: 'Rime fog' },
-      51: { icon: '🌦', desc: 'Light drizzle' },
-      53: { icon: '🌦', desc: 'Drizzle' },
-      55: { icon: '🌧', desc: 'Heavy drizzle' },
-      61: { icon: '🌧', desc: 'Light rain' },
-      63: { icon: '🌧', desc: 'Rain' },
-      65: { icon: '🌧', desc: 'Heavy rain' },
-      71: { icon: '🌨', desc: 'Light snow' },
-      73: { icon: '🌨', desc: 'Snow' },
-      75: { icon: '❄️', desc: 'Heavy snow' },
-      77: { icon: '🌨', desc: 'Snow grains' },
-      80: { icon: '🌦', desc: 'Light showers' },
-      81: { icon: '🌧', desc: 'Showers' },
-      82: { icon: '⛈', desc: 'Heavy showers' },
-      85: { icon: '🌨', desc: 'Snow showers' },
-      86: { icon: '❄️', desc: 'Heavy snow showers' },
-      95: { icon: '⛈', desc: 'Thunderstorm' },
-      96: { icon: '⛈', desc: 'Thunderstorm + hail' },
-      99: { icon: '⛈', desc: 'Severe thunderstorm' },
+    const weatherDesc = {
+      0: 'Clear', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
+      45: 'Foggy', 48: 'Rime fog',
+      51: 'Light drizzle', 53: 'Drizzle', 55: 'Heavy drizzle',
+      61: 'Light rain', 63: 'Rain', 65: 'Heavy rain',
+      71: 'Light snow', 73: 'Snow', 75: 'Heavy snow', 77: 'Snow grains',
+      80: 'Light showers', 81: 'Showers', 82: 'Heavy showers',
+      85: 'Snow showers', 86: 'Heavy snow showers',
+      95: 'Thunderstorm', 96: 'Thunderstorm + hail', 99: 'Severe thunderstorm',
     };
 
-    function getWeatherInfo(code) {
-      return weatherMap[code] || { icon: '🌡', desc: 'Unknown' };
+    // OpenWeatherMap colorful icon mapping (WMO code -> OWM icon)
+    const owmIconMap = {
+      0: '01', 1: '01', 2: '02', 3: '04',
+      45: '50', 48: '50',
+      51: '09', 53: '09', 55: '09',
+      61: '10', 63: '10', 65: '10',
+      71: '13', 73: '13', 75: '13', 77: '13',
+      80: '09', 81: '09', 82: '09',
+      85: '13', 86: '13',
+      95: '11', 96: '11', 99: '11',
+    };
+
+    function getWeatherIconUrl(code, isDay) {
+      const base = owmIconMap[code] || '03';
+      const suffix = isDay ? 'd' : 'n';
+      return `https://openweathermap.org/img/wn/${base}${suffix}@2x.png`;
+    }
+
+    function getWeatherDesc(code) {
+      return weatherDesc[code] || 'Unknown';
     }
 
     async function fetchWeather() {
       try {
         const lats = cities.map(c => c.lat).join(',');
         const lons = cities.map(c => c.lon).join(',');
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=temperature_2m,weather_code&timezone=auto`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=temperature_2m,weather_code,is_day&timezone=auto`;
         const res = await fetch(url);
         if (!res.ok) return;
         const data = await res.json();
@@ -850,8 +853,10 @@
           if (!el || !item.current) return;
           const temp = Math.round(item.current.temperature_2m);
           const code = item.current.weather_code;
-          const w = getWeatherInfo(code);
-          el.innerHTML = `<span class="weather-icon">${w.icon}</span><span class="weather-temp">${temp}°C</span><span class="weather-desc">${w.desc}</span>`;
+          const isDay = item.current.is_day === 1;
+          const iconUrl = getWeatherIconUrl(code, isDay);
+          const desc = getWeatherDesc(code);
+          el.innerHTML = `<img class="weather-icon" src="${iconUrl}" alt="${desc}" /><span class="weather-temp">${temp}°C</span><span class="weather-desc">${desc}</span>`;
           el.classList.add('loaded');
         });
       } catch (e) {
