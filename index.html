@@ -324,19 +324,22 @@
       text-shadow: 0 1px 3px rgba(0,0,0,0.4);
     }
 
-    /* #6 Timezone diff bar */
-    .diff-bar {
-      height: 3px;
-      border-radius: 2px;
-      background: rgba(255,255,255,0.1);
-      overflow: hidden;
-      margin-top: 3px;
+    /* #6 Sun arc indicator */
+    .sun-arc {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 2px;
     }
-    .diff-bar-fill {
-      height: 100%;
-      border-radius: 2px;
-      background: linear-gradient(90deg, rgba(255,255,255,0.5), rgba(255,255,255,0.25));
-      transition: width 0.5s ease;
+    .sun-arc svg {
+      flex-shrink: 0;
+    }
+    .sun-arc-label {
+      font-size: 0.52rem;
+      color: rgba(255,255,255,0.4);
+      font-weight: 400;
+      letter-spacing: 0.3px;
+      font-family: 'JetBrains Mono', monospace;
     }
 
     /* Left accent bar — vertical */
@@ -485,10 +488,32 @@
       return `UTC${sign}${pad(h)}:${pad(m)}`;
     }
 
-    // #6 Calculate diff bar width (max 12h offset = full width)
-    function diffBarWidth(offsetMin) {
-      const absH = Math.abs(offsetMin) / 60;
-      return Math.max(15, Math.min(100, (absH / 12) * 100));
+    // #6 Sun arc: compute SVG based on hour + minute
+    function sunArcSvg(hour, minute, isDay) {
+      const w = 56, h = 20;
+      const cx = w / 2, cy = h - 2, r = 16;
+      // Arc from left (6am) to right (6pm)
+      const arcPath = `M${cx - r},${cy} A${r},${r} 0 0,1 ${cx + r},${cy}`;
+      // Sun position: 6am=left, 12pm=top, 6pm=right
+      const totalMin = hour * 60 + minute;
+      let sunX, sunY;
+      if (isDay) {
+        const progress = Math.max(0, Math.min(1, (totalMin - 360) / 720)); // 6am=360min, 12h=720min
+        const angle = Math.PI * (1 - progress);
+        sunX = cx + r * Math.cos(angle);
+        sunY = cy - r * Math.sin(angle);
+      } else {
+        sunX = cx; sunY = cy + 6; // below horizon at night
+      }
+      const sunColor = isDay ? '#fbbf24' : 'rgba(255,255,255,0.2)';
+      const arcColor = isDay ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.1)';
+      const sunR = isDay ? 3.5 : 2.5;
+      return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+        <path d="${arcPath}" fill="none" stroke="${arcColor}" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="${cx - r}" y1="${cy}" x2="${cx + r}" y2="${cy}" stroke="${arcColor}" stroke-width="0.5" stroke-dasharray="2,2"/>
+        <circle cx="${sunX.toFixed(1)}" cy="${sunY.toFixed(1)}" r="${sunR}" fill="${sunColor}"/>
+        ${isDay ? `<circle cx="${sunX.toFixed(1)}" cy="${sunY.toFixed(1)}" r="6" fill="${sunColor}" opacity="0.15"/>` : ''}
+      </svg>`;
     }
 
     function updateHeaderTime() {
@@ -572,9 +597,7 @@
         card.dataset.lastMm = mm;
         card.dataset.lastSs = ss;
 
-        // #6 Diff bar width
-        const diffRel = offsetMin - localOffset;
-        const barW = diffBarWidth(diffRel);
+        const arcHtml = sunArcSvg(hour, parseInt(mm), isDay);
 
         card.innerHTML = `
           <div class="card-skeleton"></div>
@@ -595,10 +618,9 @@
               <span class="time-mm">${mm}</span>
               <span class="time-ss">${ss}</span>
             </div>
-            <div class="diff-bar"><div class="diff-bar-fill" style="width:${barW}%"></div></div>
+            <div class="sun-arc">${arcHtml}<span class="sun-arc-label">${formatOffset(offsetMin)}</span></div>
             <div class="card-bottom">
               <span class="date-display">${dateFmt.format(now)}</span>
-              <span class="utc-offset">${formatOffset(offsetMin)}</span>
             </div>
           </div>
         `;
@@ -671,12 +693,10 @@
           const diffMs = new Date(localStr) - new Date(utcStr);
           const offsetMin = Math.round(diffMs / 60000);
           card.querySelector('.date-display').textContent = dateFmt.format(now);
-          card.querySelector('.utc-offset').textContent = formatOffset(offsetMin);
 
-          // #6 Update diff bar
-          const diffRel = offsetMin - localOffset;
-          const barW = diffBarWidth(diffRel);
-          card.querySelector('.diff-bar-fill').style.width = barW + '%';
+          // #6 Update sun arc
+          const arcContainer = card.querySelector('.sun-arc');
+          arcContainer.innerHTML = sunArcSvg(hour, parseInt(mm), isDay) + `<span class="sun-arc-label">${formatOffset(offsetMin)}</span>`;
         }
       });
     }
