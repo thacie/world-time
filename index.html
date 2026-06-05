@@ -277,28 +277,29 @@
     .weather-info {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
       margin-top: 4px;
       opacity: 0;
       transition: opacity 0.4s ease;
     }
     .weather-info.loaded { opacity: 1; }
     .weather-icon {
-      font-size: 0.72rem;
+      font-size: 0.9rem;
       line-height: 1;
+      filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));
     }
     .weather-temp {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.6rem;
-      font-weight: 500;
-      color: rgba(255,255,255,0.75);
-      text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      text-shadow: 0 1px 6px rgba(0,0,0,0.5);
     }
     .weather-desc {
-      font-size: 0.48rem;
-      color: rgba(255,255,255,0.5);
-      font-weight: 400;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      font-size: 0.56rem;
+      color: rgba(255,255,255,0.65);
+      font-weight: 500;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.4);
     }
 
     /* Bottom: time data */
