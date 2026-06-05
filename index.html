@@ -286,7 +286,12 @@
     .weather-icon {
       font-size: 1.1rem;
       line-height: 1;
+      display: inline-flex;
+      align-items: center;
       filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));
+    }
+    .weather-icon svg {
+      display: block;
     }
     .weather-temp {
       font-family: 'JetBrains Mono', monospace;
@@ -815,9 +820,13 @@
       95: 'Thunderstorm', 96: 'Thunderstorm + hail', 99: 'Severe thunderstorm',
     };
 
-    // Weather emoji map — guaranteed colorful across platforms
+    // Inline SVG weather icons — consistent across all platforms
+    const svgSun = `<svg viewBox="0 0 64 64" width="28" height="28"><circle cx="32" cy="32" r="12" fill="#FFD93D"/><g stroke="#FFD93D" stroke-width="3" stroke-linecap="round"><line x1="32" y1="4" x2="32" y2="12"/><line x1="32" y1="52" x2="32" y2="60"/><line x1="4" y1="32" x2="12" y2="32"/><line x1="52" y1="32" x2="60" y2="32"/><line x1="12.2" y1="12.2" x2="17.9" y2="17.9"/><line x1="46.1" y1="46.1" x2="51.8" y2="51.8"/><line x1="51.8" y1="12.2" x2="46.1" y2="17.9"/><line x1="17.9" y1="46.1" x2="12.2" y2="51.8"/></g></svg>`;
+    const svgMoon = `<svg viewBox="0 0 64 64" width="28" height="28"><path d="M36 10 C22 14 16 28 22 42 C28 56 44 60 54 48 C40 54 28 42 30 28 C31 20 36 14 36 10Z" fill="#C7D2FE"/></svg>`;
+
+    // Weather emoji map
     const weatherEmoji = {
-      0: '🌞', 1: '🌤️', 2: '⛅', 3: '☁️',
+      1: '🌤️', 2: '⛅', 3: '☁️',
       45: '🌫️', 48: '🌫️',
       51: '🌦️', 53: '🌦️', 55: '🌧️',
       61: '🌧️', 63: '🌧️', 65: '🌧️',
@@ -827,11 +836,12 @@
       95: '⛈️', 96: '⛈️', 99: '⛈️',
     };
 
-    function getWeatherEmoji(code, isDay) {
-      if (code === 0) return isDay ? '🌞' : '🌙';
-      if (code === 1) return isDay ? '🌤️' : '🌙';
-      if (code === 3) return isDay ? '☁️' : '🌥️';
-      return weatherEmoji[code] || '🌡️';
+    function getWeatherIconHtml(code, isDay) {
+      if (code === 0) return `<span class="weather-icon">${isDay ? svgSun : svgMoon}</span>`;
+      if (code === 1 && !isDay) return `<span class="weather-icon">${svgMoon}</span>`;
+      if (code === 3 && !isDay) return `<span class="weather-icon">🌥️</span>`;
+      const emoji = weatherEmoji[code] || '🌡️';
+      return `<span class="weather-icon">${emoji}</span>`;
     }
 
     function getWeatherDesc(code) {
@@ -854,9 +864,9 @@
           const temp = Math.round(item.current.temperature_2m);
           const code = item.current.weather_code;
           const isDay = item.current.is_day === 1;
-          const iconEmoji = getWeatherEmoji(code, isDay);
+          const iconHtml = getWeatherIconHtml(code, isDay);
           const desc = getWeatherDesc(code);
-          el.innerHTML = `<span class="weather-icon">${iconEmoji}</span><span class="weather-temp">${temp}°C</span><span class="weather-desc">${desc}</span>`;
+          el.innerHTML = `${iconHtml}<span class="weather-temp">${temp}°C</span><span class="weather-desc">${desc}</span>`;
           el.classList.add('loaded');
         });
       } catch (e) {
