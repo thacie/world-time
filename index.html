@@ -326,16 +326,16 @@
 
     /* #6 Timezone diff bar */
     .diff-bar {
-      height: 2px;
-      border-radius: 1px;
-      background: rgba(255,255,255,0.15);
+      height: 3px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.1);
       overflow: hidden;
-      margin-top: 2px;
+      margin-top: 3px;
     }
     .diff-bar-fill {
       height: 100%;
-      border-radius: 1px;
-      background: rgba(255,255,255,0.3);
+      border-radius: 2px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.5), rgba(255,255,255,0.25));
       transition: width 0.5s ease;
     }
 
@@ -488,7 +488,7 @@
     // #6 Calculate diff bar width (max 12h offset = full width)
     function diffBarWidth(offsetMin) {
       const absH = Math.abs(offsetMin) / 60;
-      return Math.max(8, Math.min(100, (absH / 12) * 100));
+      return Math.max(15, Math.min(100, (absH / 12) * 100));
     }
 
     function updateHeaderTime() {
