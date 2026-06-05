@@ -284,9 +284,8 @@
     }
     .weather-info.loaded { opacity: 1; }
     .weather-icon {
-      width: 30px;
-      height: 30px;
-      flex-shrink: 0;
+      font-size: 1.1rem;
+      line-height: 1;
       filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));
     }
     .weather-temp {
@@ -816,22 +815,21 @@
       95: 'Thunderstorm', 96: 'Thunderstorm + hail', 99: 'Severe thunderstorm',
     };
 
-    // OpenWeatherMap colorful icon mapping (WMO code -> OWM icon)
-    const owmIconMap = {
-      0: '01', 1: '01', 2: '02', 3: '04',
-      45: '50', 48: '50',
-      51: '09', 53: '09', 55: '09',
-      61: '10', 63: '10', 65: '10',
-      71: '13', 73: '13', 75: '13', 77: '13',
-      80: '09', 81: '09', 82: '09',
-      85: '13', 86: '13',
-      95: '11', 96: '11', 99: '11',
+    // Weather emoji map — all colorful on Windows
+    const weatherEmoji = {
+      0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️',
+      45: '🌫️', 48: '🌫️',
+      51: '🌦️', 53: '🌦️', 55: '🌧️',
+      61: '🌧️', 63: '🌧️', 65: '🌧️',
+      71: '🌨️', 73: '❄️', 75: '❄️', 77: '🌨️',
+      80: '🌦️', 81: '🌧️', 82: '🌧️',
+      85: '🌨️', 86: '❄️',
+      95: '⛈️', 96: '⛈️', 99: '⛈️',
     };
 
-    function getWeatherIconUrl(code, isDay) {
-      const base = owmIconMap[code] || '03';
-      const suffix = isDay ? 'd' : 'n';
-      return `https://openweathermap.org/img/wn/${base}${suffix}@2x.png`;
+    function getWeatherEmoji(code, isDay) {
+      if (code === 0 || code === 1) return isDay ? (code === 0 ? '☀️' : '🌤️') : (code === 0 ? '🌙' : '🌙');
+      return weatherEmoji[code] || '🌡️';
     }
 
     function getWeatherDesc(code) {
@@ -854,9 +852,9 @@
           const temp = Math.round(item.current.temperature_2m);
           const code = item.current.weather_code;
           const isDay = item.current.is_day === 1;
-          const iconUrl = getWeatherIconUrl(code, isDay);
+          const iconEmoji = getWeatherEmoji(code, isDay);
           const desc = getWeatherDesc(code);
-          el.innerHTML = `<img class="weather-icon" src="${iconUrl}" alt="${desc}" /><span class="weather-temp">${temp}°C</span><span class="weather-desc">${desc}</span>`;
+          el.innerHTML = `<span class="weather-icon">${iconEmoji}</span><span class="weather-temp">${temp}°C</span><span class="weather-desc">${desc}</span>`;
           el.classList.add('loaded');
         });
       } catch (e) {
