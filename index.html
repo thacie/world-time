@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>World Time</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -13,22 +13,61 @@
       height: 100vh;
       overflow: hidden;
       background: #f5f6fa;
-      background-image:
-        radial-gradient(ellipse at 20% 50%, rgba(99,102,241,0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(236,72,153,0.06) 0%, transparent 50%),
-        radial-gradient(ellipse at 60% 80%, rgba(34,211,238,0.06) 0%, transparent 50%);
       color: #1e1e2e;
       display: flex;
       flex-direction: column;
-      padding: 26px 32px;
+      padding: 24px 30px 16px;
+      position: relative;
     }
 
+    /* #5 Background dynamic blobs */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .blob-1 {
+      width: 600px; height: 600px;
+      background: rgba(99,102,241,0.08);
+      top: -200px; left: -100px;
+      animation: drift1 40s ease-in-out infinite alternate;
+    }
+    .blob-2 {
+      width: 500px; height: 500px;
+      background: rgba(236,72,153,0.06);
+      bottom: -150px; right: -50px;
+      animation: drift2 35s ease-in-out infinite alternate;
+    }
+    .blob-3 {
+      width: 400px; height: 400px;
+      background: rgba(34,211,238,0.06);
+      top: 40%; left: 50%;
+      animation: drift3 45s ease-in-out infinite alternate;
+    }
+    @keyframes drift1 {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(80px, 60px); }
+    }
+    @keyframes drift2 {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-60px, -80px); }
+    }
+    @keyframes drift3 {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(50px, -40px); }
+    }
+
+    /* Header — clean, no credit */
     header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       flex-shrink: 0;
+      position: relative;
+      z-index: 1;
     }
 
     h1 {
@@ -38,14 +77,6 @@
       color: #2e2e48;
     }
     h1 span { color: #6366f1; }
-
-    .credit {
-      font-size: 0.58rem;
-      color: #aaa;
-      font-weight: 400;
-      letter-spacing: 0.5px;
-      margin-left: 10px;
-    }
 
     .header-time {
       font-family: 'JetBrains Mono', monospace;
@@ -66,17 +97,21 @@
       font-weight: 500;
     }
 
+    /* #8 Grid: rounder spacing */
     .grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       grid-template-rows: repeat(2, 1fr);
-      gap: 14px;
+      gap: 16px;
       flex: 1;
       min-height: 0;
+      position: relative;
+      z-index: 1;
     }
 
+    /* #8 Card: 24px radius */
     .card {
-      border-radius: 20px;
+      border-radius: 24px;
       position: relative;
       overflow: hidden;
       display: flex;
@@ -84,56 +119,68 @@
       justify-content: space-between;
       background: #e2e4ec;
       box-shadow: 0 2px 20px rgba(0,0,0,0.08), 0 0.5px 2px rgba(0,0,0,0.04);
-      transition: transform 0.3s cubic-bezier(.4,0,.2,1), box-shadow 0.3s ease;
+      transition: transform 0.3s cubic-bezier(.4,0,.2,1), box-shadow 0.4s ease;
       cursor: default;
     }
 
+    /* #2 Card hover bottom colored glow */
     .card:hover {
       transform: translateY(-4px) scale(1.012);
-      box-shadow: 0 16px 44px rgba(0,0,0,0.14), 0 4px 12px rgba(0,0,0,0.06);
     }
+    .shanghai:hover   { box-shadow: 0 16px 44px rgba(0,0,0,0.12), 0 6px 20px rgba(239,68,68,0.15); }
+    .taipei:hover     { box-shadow: 0 16px 44px rgba(0,0,0,0.12), 0 6px 20px rgba(59,130,246,0.15); }
+    .jakarta:hover    { box-shadow: 0 16px 44px rgba(0,0,0,0.12), 0 6px 20px rgba(245,158,11,0.15); }
+    .newyork:hover    { box-shadow: 0 16px 44px rgba(0,0,0,0.12), 0 6px 20px rgba(34,197,94,0.15); }
+    .losangeles:hover { box-shadow: 0 16px 44px rgba(0,0,0,0.12), 0 6px 20px rgba(249,115,22,0.15); }
+    .paris:hover      { box-shadow: 0 16px 44px rgba(0,0,0,0.12), 0 6px 20px rgba(139,92,246,0.15); }
+    .london:hover     { box-shadow: 0 16px 44px rgba(0,0,0,0.12), 0 6px 20px rgba(6,182,212,0.15); }
+    .sydney:hover     { box-shadow: 0 16px 44px rgba(0,0,0,0.12), 0 6px 20px rgba(16,185,129,0.15); }
 
-    /* Photo background — fills entire card */
+    /* Photo background */
     .card-photo {
       position: absolute;
       inset: 0;
       background-size: cover;
       background-position: center;
-      transition: transform 0.6s cubic-bezier(.4,0,.2,1), opacity 0.8s ease;
+      transition: transform 0.6s cubic-bezier(.4,0,.2,1), opacity 1s ease;
+      opacity: 0;
     }
+    .card.loaded .card-photo { opacity: 1; }
     .card:hover .card-photo { transform: scale(1.05); }
 
-    /* Full-card dark gradient — smooth transition for day/night */
+    /* #4 Skeleton loading pulse */
+    .card-skeleton {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, #e2e4ec 30%, #eef0f6 50%, #e2e4ec 70%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+      z-index: 0;
+      transition: opacity 0.6s ease;
+    }
+    .card.loaded .card-skeleton { opacity: 0; pointer-events: none; }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Dark gradient overlay */
     .card-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(
-        180deg,
-        rgba(0,0,0,0.15) 0%,
-        rgba(0,0,0,0.0) 25%,
-        rgba(0,0,0,0.0) 40%,
-        rgba(0,0,0,0.3) 65%,
-        rgba(0,0,0,0.6) 85%,
-        rgba(0,0,0,0.75) 100%
-      );
+      background: linear-gradient(180deg,
+        rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.0) 25%, rgba(0,0,0,0.0) 40%,
+        rgba(0,0,0,0.3) 65%, rgba(0,0,0,0.6) 85%, rgba(0,0,0,0.75) 100%);
       z-index: 1;
       transition: background 0.8s ease;
     }
-
-    /* Night-time: stronger gradient */
     .card.is-night .card-overlay {
-      background: linear-gradient(
-        180deg,
-        rgba(0,0,0,0.25) 0%,
-        rgba(0,0,0,0.1) 25%,
-        rgba(0,0,0,0.15) 40%,
-        rgba(0,0,0,0.45) 65%,
-        rgba(0,0,0,0.7) 85%,
-        rgba(0,0,0,0.85) 100%
-      );
+      background: linear-gradient(180deg,
+        rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.1) 25%, rgba(0,0,0,0.15) 40%,
+        rgba(0,0,0,0.45) 65%, rgba(0,0,0,0.7) 85%, rgba(0,0,0,0.85) 100%);
     }
 
-    /* Hover tint — city color overlay */
+    /* Hover city tint */
     .card:hover .card-overlay::after {
       content: '';
       position: absolute;
@@ -150,11 +197,11 @@
     .london:hover .card-overlay::after     { background: #06b6d4; }
     .sydney:hover .card-overlay::after     { background: #10b981; }
 
-    /* Top section: city name + landmark in photo area */
+    /* Top: city name + landmark */
     .card-header {
       position: relative;
       z-index: 2;
-      padding: 16px 18px 0;
+      padding: 18px 20px 0;
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
@@ -179,23 +226,14 @@
       margin-top: 2px;
     }
 
-    .tz-label {
-      font-size: 0.58rem;
-      color: rgba(255,255,255,0.5);
-      font-weight: 400;
-      letter-spacing: 0.3px;
-      margin-top: 1px;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-    }
-
-    /* Bottom section: time data */
+    /* Bottom: time data */
     .card-content {
       position: relative;
       z-index: 2;
-      padding: 0 18px 16px;
+      padding: 0 20px 16px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
     }
 
     .badge {
@@ -208,14 +246,8 @@
       flex-shrink: 0;
       transition: background 0.5s ease, color 0.5s ease;
     }
-    .badge.day {
-      background: linear-gradient(135deg, #fbbf24, #f59e0b);
-      color: #78350f;
-    }
-    .badge.night {
-      background: linear-gradient(135deg, #6366f1, #818cf8);
-      color: #e0e7ff;
-    }
+    .badge.day   { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #78350f; }
+    .badge.night { background: linear-gradient(135deg, #6366f1, #818cf8); color: #e0e7ff; }
 
     .time-row {
       display: flex;
@@ -223,10 +255,11 @@
       gap: 1px;
     }
 
+    /* #7 Lighter font weight for digits */
     .time-hh, .time-mm {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 2.4rem;
-      font-weight: 600;
+      font-size: 2.5rem;
+      font-weight: 400;
       line-height: 1;
       color: #fff;
       min-width: 2ch;
@@ -237,7 +270,7 @@
 
     .time-sep {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 2.4rem;
+      font-size: 2.5rem;
       font-weight: 300;
       line-height: 1;
       color: rgba(255,255,255,0.5);
@@ -247,12 +280,21 @@
     .time-ss {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.82rem;
-      font-weight: 400;
+      font-weight: 300;
       color: rgba(255,255,255,0.4);
       margin-left: 5px;
       align-self: flex-end;
       padding-bottom: 4px;
       text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    }
+
+    /* #1 Digit flip animation */
+    .digit-flip {
+      animation: digitFlip 0.2s ease-out;
+    }
+    @keyframes digitFlip {
+      0% { opacity: 0.4; transform: translateY(4px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes breathe {
@@ -264,11 +306,11 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 2px;
+      margin-top: 1px;
     }
 
     .date-display {
-      font-size: 0.64rem;
+      font-size: 0.62rem;
       color: rgba(255,255,255,0.5);
       font-weight: 400;
       text-shadow: 0 1px 4px rgba(0,0,0,0.4);
@@ -276,10 +318,25 @@
 
     .utc-offset {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.56rem;
+      font-size: 0.54rem;
       color: rgba(255,255,255,0.35);
       letter-spacing: 0.3px;
       text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
+    /* #6 Timezone diff bar */
+    .diff-bar {
+      height: 2px;
+      border-radius: 1px;
+      background: rgba(255,255,255,0.15);
+      overflow: hidden;
+      margin-top: 2px;
+    }
+    .diff-bar-fill {
+      height: 100%;
+      border-radius: 1px;
+      background: rgba(255,255,255,0.3);
+      transition: width 0.5s ease;
     }
 
     /* Left accent bar — vertical */
@@ -288,7 +345,7 @@
       top: 0; left: 0; bottom: 0;
       width: 4px;
       z-index: 3;
-      border-radius: 20px 0 0 20px;
+      border-radius: 24px 0 0 24px;
       opacity: 0.7;
       transition: opacity 0.3s ease;
     }
@@ -302,6 +359,29 @@
     .london .card-accent     { background: linear-gradient(180deg, #06b6d4, #22d3ee); }
     .sydney .card-accent     { background: linear-gradient(180deg, #10b981, #34d399); }
 
+    /* #3 Footer */
+    footer {
+      flex-shrink: 0;
+      text-align: center;
+      padding-top: 12px;
+      position: relative;
+      z-index: 1;
+    }
+    footer::before {
+      content: '';
+      display: block;
+      width: 60px;
+      height: 1px;
+      background: rgba(0,0,0,0.08);
+      margin: 0 auto 8px;
+    }
+    .footer-credit {
+      font-size: 0.52rem;
+      color: #bbb;
+      letter-spacing: 0.8px;
+      font-weight: 400;
+    }
+
     @media (max-width: 900px) {
       .grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, 1fr); }
       body { padding: 14px; overflow-y: auto; height: auto; min-height: 100vh; }
@@ -313,12 +393,23 @@
 </head>
 <body>
 
+  <!-- #5 Animated background blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <!-- #3 Clean header — no credit -->
   <header>
-    <h1>World <span>Time</span><span class="credit">provided by Hugo HUANG</span></h1>
+    <h1>World <span>Time</span></h1>
     <div class="header-time"><span class="local-time-label">local time</span><span id="headerTime"></span></div>
   </header>
 
   <div class="grid" id="grid"></div>
+
+  <!-- #3 Footer with credit -->
+  <footer>
+    <div class="footer-credit">provided by Hugo HUANG</div>
+  </footer>
 
   <script>
     const cities = [
@@ -394,6 +485,12 @@
       return `UTC${sign}${pad(h)}:${pad(m)}`;
     }
 
+    // #6 Calculate diff bar width (max 12h offset = full width)
+    function diffBarWidth(offsetMin) {
+      const absH = Math.abs(offsetMin) / 60;
+      return Math.max(8, Math.min(100, (absH / 12) * 100));
+    }
+
     function updateHeaderTime() {
       const now = new Date();
       const fmt = new Intl.DateTimeFormat('en-GB', {
@@ -404,25 +501,37 @@
       document.getElementById('headerTime').textContent = fmt.format(now);
     }
 
-    // Preload CDN images and set fallback on error
+    // Preload images
     const imgLoaded = {};
     cities.forEach(city => {
       const dayImg = new Image();
-      dayImg.onload  = () => { imgLoaded[city.cls + '-day'] = true; };
-      dayImg.onerror = () => { imgLoaded[city.cls + '-day'] = false; };
+      dayImg.onload  = () => { imgLoaded[city.cls + '-day'] = true; markLoaded(city.cls); };
+      dayImg.onerror = () => { imgLoaded[city.cls + '-day'] = false; markLoaded(city.cls); };
       dayImg.src = city.img;
 
       const nightImg = new Image();
-      nightImg.onload  = () => { imgLoaded[city.cls + '-night'] = true; };
-      nightImg.onerror = () => { imgLoaded[city.cls + '-night'] = false; };
+      nightImg.onload  = () => { imgLoaded[city.cls + '-night'] = true; markLoaded(city.cls); };
+      nightImg.onerror = () => { imgLoaded[city.cls + '-night'] = false; markLoaded(city.cls); };
       nightImg.src = city.imgNight;
     });
 
-    // Preload local backup images into browser cache
     cities.forEach(city => {
       new Image().src = city.localImg;
       new Image().src = city.localImgNight;
     });
+
+    // #4 Mark card as loaded when image is ready
+    function markLoaded(cls) {
+      const el = document.querySelector('.card.' + cls);
+      if (el && !el.classList.contains('loaded')) {
+        el.classList.add('loaded');
+      }
+    }
+
+    // Also mark loaded after local fallback timeout
+    setTimeout(() => {
+      document.querySelectorAll('.card').forEach(c => c.classList.add('loaded'));
+    }, 2000);
 
     function renderCards() {
       const grid = document.getElementById('grid');
@@ -431,6 +540,7 @@
 
       const now = new Date();
       const utcStr = now.toLocaleString('en-US', { timeZone: 'UTC' });
+      const localOffset = -now.getTimezoneOffset();
 
       cities.forEach((city, idx) => {
         const hh = safeFormat(now, { hour: '2-digit', hour12: false, timeZone: city.tz });
@@ -458,7 +568,16 @@
         card.className = `card ${city.cls}${isDay ? '' : ' is-night'}`;
         card.dataset.idx = idx;
         card.dataset.lastHour = hour;
+        card.dataset.lastHh = hh;
+        card.dataset.lastMm = mm;
+        card.dataset.lastSs = ss;
+
+        // #6 Diff bar width
+        const diffRel = offsetMin - localOffset;
+        const barW = diffBarWidth(diffRel);
+
         card.innerHTML = `
+          <div class="card-skeleton"></div>
           <div class="card-photo" style="${bgStyle}"></div>
           <div class="card-overlay"></div>
           <div class="card-accent"></div>
@@ -476,6 +595,7 @@
               <span class="time-mm">${mm}</span>
               <span class="time-ss">${ss}</span>
             </div>
+            <div class="diff-bar"><div class="diff-bar-fill" style="width:${barW}%"></div></div>
             <div class="card-bottom">
               <span class="date-display">${dateFmt.format(now)}</span>
               <span class="utc-offset">${formatOffset(offsetMin)}</span>
@@ -483,13 +603,30 @@
           </div>
         `;
         grid.appendChild(card);
+
+        // Mark loaded if image already cached
+        if (imgLoaded[city.cls + (isDay ? '-day' : '-night')] !== undefined) {
+          card.classList.add('loaded');
+        }
       });
+    }
+
+    // #1 Flip animation helper
+    function flipIfChanged(el, newVal, dataKey, card) {
+      if (card.dataset[dataKey] !== newVal) {
+        card.dataset[dataKey] = newVal;
+        el.textContent = newVal;
+        el.classList.remove('digit-flip');
+        void el.offsetWidth; // trigger reflow
+        el.classList.add('digit-flip');
+      }
     }
 
     function updateTimes() {
       updateHeaderTime();
       const now = new Date();
       const utcStr = now.toLocaleString('en-US', { timeZone: 'UTC' });
+      const localOffset = -now.getTimezoneOffset();
       const cards = document.querySelectorAll('.card');
 
       cards.forEach(card => {
@@ -500,27 +637,23 @@
         const mm = safeFormat(now, { minute: '2-digit', timeZone: city.tz });
         const ss = safeFormat(now, { second: '2-digit', timeZone: city.tz });
 
-        // Update time text only (no DOM rebuild)
-        card.querySelector('.time-hh').textContent = hh;
-        card.querySelector('.time-mm').textContent = mm;
-        card.querySelector('.time-ss').textContent = ss;
+        // #1 Flip animation on digit change
+        flipIfChanged(card.querySelector('.time-hh'), hh, 'lastHh', card);
+        flipIfChanged(card.querySelector('.time-mm'), mm, 'lastMm', card);
+        flipIfChanged(card.querySelector('.time-ss'), ss, 'lastSs', card);
 
-        // Check if hour changed → update day/night mode
         const hour = parseInt(hh);
         const lastHour = parseInt(card.dataset.lastHour);
         if (hour !== lastHour) {
           card.dataset.lastHour = hour;
           const isDay = hour >= 6 && hour < 18;
 
-          // Update card class
           card.classList.toggle('is-night', !isDay);
 
-          // Update badge
           const badge = card.querySelector('.badge');
           badge.className = `badge ${isDay ? 'day' : 'night'}`;
           badge.textContent = isDay ? '☀ Day' : '☾ Night';
 
-          // Update background image
           const cdnLoaded = imgLoaded[city.cls + (isDay ? '-day' : '-night')];
           const cdnUrl = isDay ? city.img : city.imgNight;
           const localUrl = isDay ? city.localImg : city.localImgNight;
@@ -531,7 +664,6 @@
           photo.style.backgroundSize = 'cover';
           photo.style.backgroundPosition = 'center';
 
-          // Update date and offset
           const dateFmt = new Intl.DateTimeFormat('en-US', {
             weekday: 'short', month: 'short', day: 'numeric', timeZone: city.tz
           });
@@ -540,6 +672,11 @@
           const offsetMin = Math.round(diffMs / 60000);
           card.querySelector('.date-display').textContent = dateFmt.format(now);
           card.querySelector('.utc-offset').textContent = formatOffset(offsetMin);
+
+          // #6 Update diff bar
+          const diffRel = offsetMin - localOffset;
+          const barW = diffBarWidth(diffRel);
+          card.querySelector('.diff-bar-fill').style.width = barW + '%';
         }
       });
     }
