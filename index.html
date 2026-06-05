@@ -336,7 +336,7 @@
     }
     .sun-arc-label {
       font-size: 0.52rem;
-      color: rgba(255,255,255,0.4);
+      color: rgba(255,255,255,0.5);
       font-weight: 400;
       letter-spacing: 0.3px;
       font-family: 'JetBrains Mono', monospace;
@@ -490,30 +490,52 @@
 
     // #6 Sun arc: compute SVG based on hour + minute
     function sunArcSvg(hour, minute, isDay) {
-      const w = 56, h = 20;
+      const w = 56, h = 22;
       const cx = w / 2, cy = h - 2, r = 16;
       // Arc from left (6am) to right (6pm)
       const arcPath = `M${cx - r},${cy} A${r},${r} 0 0,1 ${cx + r},${cy}`;
-      // Sun position: 6am=left, 12pm=top, 6pm=right
-      const totalMin = hour * 60 + minute;
-      let sunX, sunY;
+
       if (isDay) {
-        const progress = Math.max(0, Math.min(1, (totalMin - 360) / 720)); // 6am=360min, 12h=720min
+        // Day: golden sun on arc
+        const totalMin = hour * 60 + minute;
+        const progress = Math.max(0, Math.min(1, (totalMin - 360) / 720));
         const angle = Math.PI * (1 - progress);
-        sunX = cx + r * Math.cos(angle);
-        sunY = cy - r * Math.sin(angle);
+        const sunX = cx + r * Math.cos(angle);
+        const sunY = cy - r * Math.sin(angle);
+        return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+          <path d="${arcPath}" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="${cx - r}" y1="${cy}" x2="${cx + r}" y2="${cy}" stroke="rgba(255,255,255,0.15)" stroke-width="0.5" stroke-dasharray="2,2"/>
+          <circle cx="${sunX.toFixed(1)}" cy="${sunY.toFixed(1)}" r="7" fill="#fbbf24" opacity="0.12"/>
+          <circle cx="${sunX.toFixed(1)}" cy="${sunY.toFixed(1)}" r="3.5" fill="#fbbf24"/>
+        </svg>`;
       } else {
-        sunX = cx; sunY = cy + 6; // below horizon at night
+        // Night: crescent moon + stars, below-horizon moon position
+        const totalMin = hour * 60 + minute;
+        // Moon travels an inverted arc at night (6pm=left, 12am=top, 6am=right)
+        let nightProgress;
+        if (hour >= 18) {
+          nightProgress = (totalMin - 1080) / 720; // 6pm to 6am
+        } else {
+          nightProgress = (totalMin + 360) / 720; // midnight to 6am
+        }
+        nightProgress = Math.max(0, Math.min(1, nightProgress));
+        const moonAngle = Math.PI * (1 - nightProgress);
+        const moonX = cx + r * Math.cos(moonAngle);
+        const moonY = cy - r * Math.sin(moonAngle);
+        // Crescent moon: main circle + cutout circle
+        const cutX = moonX + 1.8;
+        const cutY = moonY - 1.2;
+        return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+          <path d="${arcPath}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="${cx - r}" y1="${cy}" x2="${cx + r}" y2="${cy}" stroke="rgba(255,255,255,0.12)" stroke-width="0.5" stroke-dasharray="2,2"/>
+          <circle cx="${moonX.toFixed(1)}" cy="${moonY.toFixed(1)}" r="6" fill="#c7d2fe" opacity="0.1"/>
+          <circle cx="${moonX.toFixed(1)}" cy="${moonY.toFixed(1)}" r="3.5" fill="#c7d2fe"/>
+          <circle cx="${cutX.toFixed(1)}" cy="${cutY.toFixed(1)}" r="3" fill="#1a1a2e" opacity="0.85"/>
+          <circle cx="${cx - r + 3}" cy="${cy - 4}" r="0.8" fill="rgba(255,255,255,0.5)"/>
+          <circle cx="${cx + r - 5}" cy="${cy - 8}" r="0.6" fill="rgba(255,255,255,0.4)"/>
+          <circle cx="${cx + 2}" cy="${cy - 14}" r="0.7" fill="rgba(255,255,255,0.45)"/>
+        </svg>`;
       }
-      const sunColor = isDay ? '#fbbf24' : 'rgba(255,255,255,0.2)';
-      const arcColor = isDay ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.1)';
-      const sunR = isDay ? 3.5 : 2.5;
-      return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
-        <path d="${arcPath}" fill="none" stroke="${arcColor}" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="${cx - r}" y1="${cy}" x2="${cx + r}" y2="${cy}" stroke="${arcColor}" stroke-width="0.5" stroke-dasharray="2,2"/>
-        <circle cx="${sunX.toFixed(1)}" cy="${sunY.toFixed(1)}" r="${sunR}" fill="${sunColor}"/>
-        ${isDay ? `<circle cx="${sunX.toFixed(1)}" cy="${sunY.toFixed(1)}" r="6" fill="${sunColor}" opacity="0.15"/>` : ''}
-      </svg>`;
     }
 
     function updateHeaderTime() {
