@@ -815,9 +815,9 @@
       95: 'Thunderstorm', 96: 'Thunderstorm + hail', 99: 'Severe thunderstorm',
     };
 
-    // Weather emoji map — all colorful on Windows
+    // Weather emoji map — guaranteed colorful across platforms
     const weatherEmoji = {
-      0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️',
+      0: '🌞', 1: '🌤️', 2: '⛅', 3: '☁️',
       45: '🌫️', 48: '🌫️',
       51: '🌦️', 53: '🌦️', 55: '🌧️',
       61: '🌧️', 63: '🌧️', 65: '🌧️',
@@ -828,7 +828,9 @@
     };
 
     function getWeatherEmoji(code, isDay) {
-      if (code === 0 || code === 1) return isDay ? (code === 0 ? '☀️' : '🌤️') : (code === 0 ? '🌙' : '🌙');
+      if (code === 0) return isDay ? '🌞' : '🌙';
+      if (code === 1) return isDay ? '🌤️' : '🌙';
+      if (code === 3) return isDay ? '☁️' : '🌥️';
       return weatherEmoji[code] || '🌡️';
     }
 
