@@ -273,6 +273,34 @@
       margin-top: 2px;
     }
 
+    /* Weather display */
+    .weather-info {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .weather-info.loaded { opacity: 1; }
+    .weather-icon {
+      font-size: 0.72rem;
+      line-height: 1;
+    }
+    .weather-temp {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.75);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    }
+    .weather-desc {
+      font-size: 0.48rem;
+      color: rgba(255,255,255,0.5);
+      font-weight: 400;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
     /* Bottom: time data */
     .card-content {
       position: relative;
@@ -460,6 +488,7 @@
     const cities = [
       {
         name: 'Shanghai', tz: 'Asia/Shanghai', cls: 'shanghai', landmark: 'The Bund',
+        lat: 31.23, lon: 121.47,
         img: 'https://images.unsplash.com/photo-1523281855495-b46cf55b1e7e?w=800&q=80',
         imgNight: 'https://images.unsplash.com/photo-1614221330834-9399e5631af3?w=800&q=80',
         localImg: 'images/shanghai_day.jpg', localImgNight: 'images/shanghai_night.jpg',
@@ -467,6 +496,7 @@
       },
       {
         name: 'Taipei', tz: 'Asia/Taipei', cls: 'taipei', landmark: 'Taipei 101',
+        lat: 25.03, lon: 121.57,
         img: 'https://images.unsplash.com/photo-1609147110688-83b5fd1288e8?w=800&q=80',
         imgNight: 'https://images.unsplash.com/photo-1598935898639-81586f7d2129?w=800&q=80',
         localImg: 'images/taipei_day.jpg', localImgNight: 'images/taipei_night.jpg',
@@ -474,6 +504,7 @@
       },
       {
         name: 'Jakarta', tz: 'Asia/Jakarta', cls: 'jakarta', landmark: 'Monas Tower',
+        lat: -6.21, lon: 106.85,
         img: 'https://images.unsplash.com/photo-1555605976-8bf855afd253?w=800&q=80',
         imgNight: 'https://images.unsplash.com/photo-1618050032268-6aa510a06191?w=800&q=80',
         localImg: 'images/jakarta_day.jpg', localImgNight: 'images/jakarta_night.jpg',
@@ -481,6 +512,7 @@
       },
       {
         name: 'New York', tz: 'America/New_York', cls: 'newyork', landmark: 'Manhattan',
+        lat: 40.71, lon: -74.01,
         img: 'https://images.unsplash.com/photo-1618861138969-0d7a9d315b1f?w=800&q=80',
         imgNight: 'https://images.unsplash.com/photo-1559075403-a91eebbc7d03?w=800&q=80',
         localImg: 'images/newyork_day.jpg', localImgNight: 'images/newyork_night.jpg',
@@ -488,6 +520,7 @@
       },
       {
         name: 'Los Angeles', tz: 'America/Los_Angeles', cls: 'losangeles', landmark: 'Hollywood Sign',
+        lat: 34.05, lon: -118.24,
         img: 'https://images.unsplash.com/photo-1506184106046-1e6e90c0222d?w=800&q=80',
         imgNight: 'https://images.unsplash.com/photo-1611728337177-89dfbbdc7a3a?w=800&q=80',
         localImg: 'images/losangeles_day.jpg', localImgNight: 'images/losangeles_night.jpg',
@@ -495,6 +528,7 @@
       },
       {
         name: 'Paris', tz: 'Europe/Paris', cls: 'paris', landmark: 'Eiffel Tower',
+        lat: 48.86, lon: 2.35,
         img: 'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=800&q=80',
         imgNight: 'https://images.unsplash.com/photo-1565881606991-789a8dff9dbb?w=800&q=80',
         localImg: 'images/paris_day.jpg', localImgNight: 'images/paris_night.jpg',
@@ -502,6 +536,7 @@
       },
       {
         name: 'London', tz: 'Europe/London', cls: 'london', landmark: 'Big Ben',
+        lat: 51.51, lon: -0.13,
         img: 'https://images.unsplash.com/photo-1500380804539-4e1e8c1e7118?w=800&q=80',
         imgNight: 'https://images.unsplash.com/photo-1519773483179-fa089c182a4a?w=800&q=80',
         localImg: 'images/london_day.jpg', localImgNight: 'images/london_night.jpg',
@@ -509,6 +544,7 @@
       },
       {
         name: 'Sydney', tz: 'Australia/Sydney', cls: 'sydney', landmark: 'Opera House',
+        lat: -33.87, lon: 151.21,
         img: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&q=80',
         imgNight: 'https://images.unsplash.com/photo-1527251672045-a80241b3f574?w=800&q=80',
         localImg: 'images/sydney_day.jpg', localImgNight: 'images/sydney_night.jpg',
@@ -670,6 +706,7 @@
             <div>
               <div class="city-name">${city.name}</div>
               <div class="landmark-label">${city.landmark}</div>
+              <div class="weather-info" id="weather-${idx}"></div>
             </div>
             <div class="badge ${isDay ? 'day' : 'night'}">${isDay ? '☀ Day' : '☾ Night'}</div>
           </div>
@@ -764,6 +801,65 @@
 
     renderCards();
     setInterval(updateTimes, 1000);
+
+    // Weather: Open-Meteo API (free, no key needed)
+    const weatherMap = {
+      0:  { icon: '☀️', desc: 'Clear' },
+      1:  { icon: '🌤', desc: 'Mainly clear' },
+      2:  { icon: '⛅', desc: 'Partly cloudy' },
+      3:  { icon: '☁️', desc: 'Overcast' },
+      45: { icon: '🌫', desc: 'Foggy' },
+      48: { icon: '🌫', desc: 'Rime fog' },
+      51: { icon: '🌦', desc: 'Light drizzle' },
+      53: { icon: '🌦', desc: 'Drizzle' },
+      55: { icon: '🌧', desc: 'Heavy drizzle' },
+      61: { icon: '🌧', desc: 'Light rain' },
+      63: { icon: '🌧', desc: 'Rain' },
+      65: { icon: '🌧', desc: 'Heavy rain' },
+      71: { icon: '🌨', desc: 'Light snow' },
+      73: { icon: '🌨', desc: 'Snow' },
+      75: { icon: '❄️', desc: 'Heavy snow' },
+      77: { icon: '🌨', desc: 'Snow grains' },
+      80: { icon: '🌦', desc: 'Light showers' },
+      81: { icon: '🌧', desc: 'Showers' },
+      82: { icon: '⛈', desc: 'Heavy showers' },
+      85: { icon: '🌨', desc: 'Snow showers' },
+      86: { icon: '❄️', desc: 'Heavy snow showers' },
+      95: { icon: '⛈', desc: 'Thunderstorm' },
+      96: { icon: '⛈', desc: 'Thunderstorm + hail' },
+      99: { icon: '⛈', desc: 'Severe thunderstorm' },
+    };
+
+    function getWeatherInfo(code) {
+      return weatherMap[code] || { icon: '🌡', desc: 'Unknown' };
+    }
+
+    async function fetchWeather() {
+      try {
+        const lats = cities.map(c => c.lat).join(',');
+        const lons = cities.map(c => c.lon).join(',');
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=temperature_2m,weather_code&timezone=auto`;
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const data = await res.json();
+        const results = Array.isArray(data) ? data : [data];
+
+        results.forEach((item, idx) => {
+          const el = document.getElementById('weather-' + idx);
+          if (!el || !item.current) return;
+          const temp = Math.round(item.current.temperature_2m);
+          const code = item.current.weather_code;
+          const w = getWeatherInfo(code);
+          el.innerHTML = `<span class="weather-icon">${w.icon}</span><span class="weather-temp">${temp}°C</span><span class="weather-desc">${w.desc}</span>`;
+          el.classList.add('loaded');
+        });
+      } catch (e) {
+        console.warn('Weather fetch failed:', e);
+      }
+    }
+
+    fetchWeather();
+    setInterval(fetchWeather, 600000); // refresh every 10 min
   </script>
 </body>
 </html>
