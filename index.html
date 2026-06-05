@@ -363,13 +363,6 @@
       text-shadow: 0 1px 4px rgba(0,0,0,0.4);
     }
 
-    .utc-offset {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.54rem;
-      color: rgba(255,255,255,0.35);
-      letter-spacing: 0.3px;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-    }
 
     /* #6 Sun arc indicator */
     .sun-arc {
@@ -636,8 +629,6 @@
 
       const now = new Date();
       const utcStr = now.toLocaleString('en-US', { timeZone: 'UTC' });
-      const localOffset = -now.getTimezoneOffset();
-
       cities.forEach((city, idx) => {
         const hh = safeFormat(now, { hour: '2-digit', hour12: false, timeZone: city.tz });
         const mm = safeFormat(now, { minute: '2-digit', timeZone: city.tz });
@@ -719,7 +710,6 @@
       updateHeaderTime();
       const now = new Date();
       const utcStr = now.toLocaleString('en-US', { timeZone: 'UTC' });
-      const localOffset = -now.getTimezoneOffset();
       const cards = document.querySelectorAll('.card');
 
       cards.forEach(card => {
