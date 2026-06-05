@@ -12,7 +12,7 @@
       font-family: 'Inter', sans-serif;
       height: 100vh;
       overflow: hidden;
-      background: #f5f6fa;
+      background: #f0f1f8;
       color: #1e1e2e;
       display: flex;
       flex-direction: column;
@@ -20,43 +20,66 @@
       position: relative;
     }
 
-    /* #5 Background dynamic blobs */
+    /* #5 Mesh gradient background — Apple-style fluid blobs */
     .blob {
       position: fixed;
       border-radius: 50%;
-      filter: blur(120px);
+      filter: blur(100px);
       pointer-events: none;
       z-index: 0;
     }
     .blob-1 {
-      width: 600px; height: 600px;
-      background: rgba(99,102,241,0.08);
-      top: -200px; left: -100px;
-      animation: drift1 40s ease-in-out infinite alternate;
+      width: 700px; height: 700px;
+      background: rgba(99,102,241,0.18);
+      top: -250px; left: -150px;
+      animation: drift1 38s ease-in-out infinite alternate;
     }
     .blob-2 {
-      width: 500px; height: 500px;
-      background: rgba(236,72,153,0.06);
-      bottom: -150px; right: -50px;
-      animation: drift2 35s ease-in-out infinite alternate;
+      width: 550px; height: 550px;
+      background: rgba(236,72,153,0.14);
+      bottom: -200px; right: -80px;
+      animation: drift2 32s ease-in-out infinite alternate;
     }
     .blob-3 {
+      width: 500px; height: 500px;
+      background: rgba(34,211,238,0.12);
+      top: 30%; left: 55%;
+      animation: drift3 42s ease-in-out infinite alternate;
+    }
+    .blob-4 {
       width: 400px; height: 400px;
-      background: rgba(34,211,238,0.06);
-      top: 40%; left: 50%;
-      animation: drift3 45s ease-in-out infinite alternate;
+      background: rgba(251,191,36,0.1);
+      top: 10%; right: 20%;
+      animation: drift4 36s ease-in-out infinite alternate;
+    }
+    .blob-5 {
+      width: 350px; height: 350px;
+      background: rgba(16,185,129,0.1);
+      bottom: 10%; left: 25%;
+      animation: drift5 40s ease-in-out infinite alternate;
     }
     @keyframes drift1 {
-      0% { transform: translate(0, 0); }
-      100% { transform: translate(80px, 60px); }
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(60px, 40px) scale(1.05); }
+      100% { transform: translate(100px, 80px) scale(0.95); }
     }
     @keyframes drift2 {
-      0% { transform: translate(0, 0); }
-      100% { transform: translate(-60px, -80px); }
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-40px, -50px) scale(1.08); }
+      100% { transform: translate(-80px, -100px) scale(0.96); }
     }
     @keyframes drift3 {
-      0% { transform: translate(0, 0); }
-      100% { transform: translate(50px, -40px); }
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(30px, -30px) scale(0.94); }
+      100% { transform: translate(70px, -50px) scale(1.06); }
+    }
+    @keyframes drift4 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-50px, 60px) scale(1.1); }
+    }
+    @keyframes drift5 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(40px, -70px) scale(0.92); }
     }
 
     /* Header — clean, no credit */
@@ -400,6 +423,8 @@
   <div class="blob blob-1"></div>
   <div class="blob blob-2"></div>
   <div class="blob blob-3"></div>
+  <div class="blob blob-4"></div>
+  <div class="blob blob-5"></div>
 
   <!-- #3 Clean header — no credit -->
   <header>
