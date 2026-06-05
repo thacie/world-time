@@ -817,7 +817,7 @@
 
     // Weather emoji map — guaranteed colorful across platforms
     const weatherEmoji = {
-      0: '🌞', 1: '🌤️', 2: '⛅', 3: '☁️',
+      0: '🌞', 1: '🌤️', 2: '⛅', 3: '🌥️',
       45: '🌫️', 48: '🌫️',
       51: '🌦️', 53: '🌦️', 55: '🌧️',
       61: '🌧️', 63: '🌧️', 65: '🌧️',
@@ -830,7 +830,7 @@
     function getWeatherEmoji(code, isDay) {
       if (code === 0) return isDay ? '🌞' : '🌙';
       if (code === 1) return isDay ? '🌤️' : '🌙';
-      if (code === 3) return isDay ? '☁️' : '🌥️';
+      if (code === 3) return '🌥️';
       return weatherEmoji[code] || '🌡️';
     }
 
