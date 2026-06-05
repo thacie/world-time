@@ -805,14 +805,14 @@
 
     // Weather: Open-Meteo API (free, no key needed)
     const weatherDesc = {
-      0: 'Clear', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
-      45: 'Foggy', 48: 'Rime fog',
-      51: 'Light drizzle', 53: 'Drizzle', 55: 'Heavy drizzle',
-      61: 'Light rain', 63: 'Rain', 65: 'Heavy rain',
-      71: 'Light snow', 73: 'Snow', 75: 'Heavy snow', 77: 'Snow grains',
-      80: 'Light showers', 81: 'Showers', 82: 'Heavy showers',
-      85: 'Snow showers', 86: 'Heavy snow showers',
-      95: 'Thunderstorm', 96: 'Thunderstorm + hail', 99: 'Severe thunderstorm',
+      0: '晴', 1: '大部晴朗', 2: '多云', 3: '阴',
+      45: '雾', 48: '霜雾',
+      51: '小毛毛雨', 53: '毛毛雨', 55: '大毛毛雨',
+      61: '小雨', 63: '中雨', 65: '大雨',
+      71: '小雪', 73: '中雪', 75: '大雪', 77: '雪粒',
+      80: '小阵雨', 81: '阵雨', 82: '大阵雨',
+      85: '阵雪', 86: '大阵雪',
+      95: '雷暴', 96: '雷暴+冰雹', 99: '强雷暴',
     };
 
     // Weather emoji map — guaranteed colorful across platforms
@@ -835,7 +835,7 @@
     }
 
     function getWeatherDesc(code) {
-      return weatherDesc[code] || 'Unknown';
+      return weatherDesc[code] || '未知';
     }
 
     async function fetchWeather() {
