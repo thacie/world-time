@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -609,7 +609,7 @@
           <line x1="${cx - r}" y1="${cy}" x2="${cx + r}" y2="${cy}" stroke="rgba(255,255,255,0.12)" stroke-width="0.5" stroke-dasharray="2,2"/>
           <circle cx="${moonX.toFixed(1)}" cy="${moonY.toFixed(1)}" r="6" fill="#c7d2fe" opacity="0.1"/>
           <circle cx="${moonX.toFixed(1)}" cy="${moonY.toFixed(1)}" r="3.5" fill="#c7d2fe"/>
-          <circle cx="${cutX.toFixed(1)}" cy="${cutY.toFixed(1)}" r="3" fill="#1a1a2e" opacity="0.85"/>
+          <circle cx="${cutX.toFixed(1)}" cy="${cutY.toFixed(1)}" r="3" fill="rgba(10,10,30,0.75)"/>
           <circle cx="${cx - r + 3}" cy="${cy - 4}" r="0.8" fill="rgba(255,255,255,0.5)"/>
           <circle cx="${cx + r - 5}" cy="${cy - 8}" r="0.6" fill="rgba(255,255,255,0.4)"/>
           <circle cx="${cx + 2}" cy="${cy - 14}" r="0.7" fill="rgba(255,255,255,0.45)"/>
@@ -817,7 +817,7 @@
 
     // Weather emoji map — guaranteed colorful across platforms
     const weatherEmoji = {
-      0: '🌞', 1: '🌤️', 2: '⛅', 3: '🌥️',
+      2: '⛅',
       45: '🌫️', 48: '🌫️',
       51: '🌦️', 53: '🌦️', 55: '🌧️',
       61: '🌧️', 63: '🌧️', 65: '🌧️',
@@ -837,8 +837,6 @@
     function getWeatherDesc(code) {
       return weatherDesc[code] || '未知';
     }
-
-    let weatherLoaded = false;
 
     async function fetchWeather() {
       try {
@@ -865,16 +863,14 @@
           el.classList.add('loaded');
         });
 
+        // First success: stop retry, switch to hourly
         if (!weatherLoaded) {
           weatherLoaded = true;
-          console.log('Weather loaded successfully');
-          // Switch to hourly refresh after first success
           clearInterval(weatherRetryTimer);
           setInterval(fetchWeather, 3600000);
         }
       } catch (e) {
         console.warn('Weather unavailable:', e.message, '- retrying in 10 min');
-        // Hide weather gracefully — keep opacity:0, no error text
         cities.forEach((_, idx) => {
           const el = document.getElementById('weather-' + idx);
           if (el) { el.innerHTML = ''; el.classList.remove('loaded'); }
@@ -882,8 +878,8 @@
       }
     }
 
+    let weatherLoaded = false;
     fetchWeather();
-    // Retry every 10 minutes until API recovers
     const weatherRetryTimer = setInterval(fetchWeather, 600000);
   </script>
 </body>
